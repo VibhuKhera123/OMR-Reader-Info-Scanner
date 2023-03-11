@@ -1,20 +1,23 @@
-import 'dart:io';
-import 'package:flutter/cupertino.dart';
+// ignore_for_file: avoid_print
+
+import 'dart:html';
+import 'dart:core';
 import 'package:flutter/material.dart';
+import 'package:flutter_absolute_path/flutter_absolute_path.dart';
 import 'dart:async';
 import 'package:multi_image_picker/multi_image_picker.dart';
-import 'package:flutter_absolute_path/flutter_absolute_path.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-import 'package:firebase_core/firebase_core.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert' show utf8;
 import 'dart:typed_data' show Uint8List;
 import 'main.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-List url_list = [];
+
+List urlList = [];
 List classes = [];
-List num_of_stud =[];
+List numOfStud = [];
 
 // Class name Variable
 var class_name;
@@ -23,12 +26,11 @@ bool button_pressed = false;
 // Total Students Variable
 var tot_stud;
 var inp1;
-class multiple_image extends StatefulWidget {
 
+class multiple_image extends StatefulWidget {
   @override
   _MultipleImageState createState() => _MultipleImageState();
 }
-
 
 class _MultipleImageState extends State<multiple_image> {
   List<Asset> images = List<Asset>();
@@ -89,41 +91,35 @@ class _MultipleImageState extends State<multiple_image> {
   }
 
   void upload_selected() async {
-
     // Uploading User Data to Firebase
 
-    try{
-
+    try {
       // Creating a new Reference
       firebase_storage.Reference ref_txt =
-      firebase_storage.FirebaseStorage.instance.ref('class_data/');
+          firebase_storage.FirebaseStorage.instance.ref('class_data/');
       String text = 'Hello World!';
       List<int> encoded = utf8.encode(text);
       Uint8List data = Uint8List.fromList(encoded);
 
       // Pushing the data
-      await firebase_storage
-          .FirebaseStorage.instance
-          .ref('class_data/$data').putData(data);
+      await firebase_storage.FirebaseStorage.instance
+          .ref('class_data/$data')
+          .putData(data);
 
       // Getting the data from Firebase
-      Uint8List? downloadedData =  await firebase_storage
+      Uint8List? downloadedData = await firebase_storage
           .FirebaseStorage.instance
-          .ref('class_data/$data').getData();
+          .ref('class_data/$data')
+          .getData();
 
       print("decoded data ${utf8.decode(downloadedData!)}");
-      Fluttertoast.showToast(msg: "Data Saved", backgroundColor: Colors.pink[400]);
-
-
-    }
-
-    on firebase_storage.FirebaseException catch(e)
-    {
+      Fluttertoast.showToast(
+          msg: "Data Saved", backgroundColor: Colors.pink[400]);
+    } on firebase_storage.FirebaseException catch (e) {
       print(e);
     }
 
     // Image Part
-
 
     print("Number of Images Selected ${images.length}");
     print("File Name ${images[0].name}");
@@ -131,23 +127,22 @@ class _MultipleImageState extends State<multiple_image> {
 
     // Initalizing Storage Bucket
     firebase_storage.FirebaseStorage storage =
-    firebase_storage.FirebaseStorage.instanceFor(bucket: 'gs://omr-scanner-b2999.appspot.com');
+        firebase_storage.FirebaseStorage.instanceFor(
+            bucket: 'gs://omr-scanner-b2999.appspot.com');
 
     // Initialize Firebase
     await Firebase.initializeApp();
     print("Button Pressed");
 
     // Looping though List of Images
-    url_list=[];
-    for (var i=0;i<images.length;i++) {
-
-      var img_pth = await FlutterAbsolutePath.getAbsolutePath(
-          images[i].identifier);
-      print("Path ${img_pth}");
+    urlList = [];
+    for (var i = 0; i < images.length; i++) {
+      var img_pth =
+          await FlutterAbsolutePath.getAbsolutePath(images[i].identifier);
+      print("Path $img_pth");
 
       // Converting the Image_Path to File
-      File file  = new File( img_pth);
-
+      var file = File(img_pth as List<Object>,,);         // add file name where you are storing the images,add options for maping each address
 
       try {
         // Uploading to Firebase and taking a ref snapshot
@@ -156,27 +151,28 @@ class _MultipleImageState extends State<multiple_image> {
             .ref('uploads/${images[i].name}')
             .putFile(file);
         // print the progress
-        print('Progress: ${(snapshot.totalBytes / snapshot.bytesTransferred) * 100} %');
+        print(
+            'Progress: ${(snapshot.totalBytes / snapshot.bytesTransferred) * 100} %');
 
         // Getting the Image URL
-        var img_url = await firebase_storage.FirebaseStorage.instance.ref('uploads/${images[i].name}').getDownloadURL();
+        var img_url = await firebase_storage.FirebaseStorage.instance
+            .ref('uploads/${images[i].name}')
+            .getDownloadURL();
         print("Download URL for Image $i--> ${img_url.toString()}");
         // To Append to List .insert
         // To make List of strings/Bracket problem, .toString()
-        url_list.insert(i, img_url.toString());
-        Fluttertoast.showToast(msg: "Photo ${i+1} Uploaded", backgroundColor: Colors.pink[400]);
-
-      }
-      on firebase_storage.FirebaseException catch(e){
+        urlList.insert(i, img_url.toString());
+        Fluttertoast.showToast(
+            msg: "Photo ${i + 1} Uploaded", backgroundColor: Colors.pink[400]);
+      } on firebase_storage.FirebaseException catch (e) {
         print(e);
       }
     }
-    print("Final Image URL List $url_list");
+    print("Final Image URL List $urlList");
     // Showing User Toast Message
     setState(() {
-      url_list;
+      urlList;
     });
-
   }
 
   // Selecting the Images Button
@@ -185,15 +181,15 @@ class _MultipleImageState extends State<multiple_image> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: new Scaffold(
+      home: Scaffold(
         appBar: AppBar(
-          backgroundColor: global_color,
+          backgroundColor: globalColor,
           leading: IconButton(
             // Back Arrow
-            icon: Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () => Navigator.of(context).pop(),
           ),
-          title: Text("Upload Images"),
+          title: const Text("Upload Images"),
           centerTitle: true,
         ),
         body: Column(
@@ -201,78 +197,59 @@ class _MultipleImageState extends State<multiple_image> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-
-
             // Total Students Box
             Container(
-                color: Colors.orange ,
-                height: MediaQuery
-                    .of(context)
-                    .size
-                    .height * 0.07,
-                width: MediaQuery
-                    .of(context)
-                    .size
-                    .width * 0.1,
+                color: Colors.orange,
+                height: MediaQuery.of(context).size.height * 0.07,
+                width: MediaQuery.of(context).size.width * 0.1,
                 padding: EdgeInsets.only(left: 5, top: 10),
-                child: (
-                    TextField(
-                        controller: inp1,
-                        obscureText: false,
-                        inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
-                        decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: 'Total Students ',
-                            hintStyle: TextStyle(color: Colors.white))))
-
-            ),
+                child: (TextField(
+                    controller: inp1,
+                    obscureText: false,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly
+                    ],
+                    decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'Total Students ',
+                        hintStyle: TextStyle(color: Colors.white))))),
 
             // Upload Selected Button if Pick Images was clicked Once
             // Also Display the Class name Column
             if (firstClick != true)
               GestureDetector(
-                onTap:() {
+                onTap: () {
                   setState(() {
                     button_pressed = true;
                   });
                 },
                 child: Container(
                     color: Colors.green,
-                    height: MediaQuery
-                        .of(context)
-                        .size
-                        .height * 0.07,
-                    width: MediaQuery
-                        .of(context)
-                        .size
-                        .width * 0.1,
-                    padding: EdgeInsets.only(left: 5, top: 10),
-                    child: (
-                        TextField(
-                            controller: class_name,
-                            obscureText: false,
-                            decoration: InputDecoration(
-                                border: InputBorder.none,
-                                hintText: 'Classroom Name',
-                                hintStyle: TextStyle(color: Colors.white))))
-                ),
+                    height: MediaQuery.of(context).size.height * 0.07,
+                    width: MediaQuery.of(context).size.width * 0.1,
+                    padding: const EdgeInsets.only(left: 5, top: 10),
+                    child: (TextField(
+                        controller: class_name,
+                        obscureText: false,
+                        decoration: const InputDecoration(
+                            border: InputBorder.none,
+                            hintText: 'Classroom Name',
+                            hintStyle: TextStyle(color: Colors.white))))),
               ),
-
 
             // Giving Smart Buttons for Select & Upload
             firstClick != true
                 ? FloatingActionButton.extended(
-              backgroundColor: global_color,
-                label: Text("Pick images"), onPressed: loadAssets)
+                    backgroundColor: globalColor,
+                    label: const Text("Pick images"),
+                    onPressed: loadAssets)
                 : Expanded(child: buildGridView()),
 
             if (firstClick == true)
               FloatingActionButton.extended(
-                  backgroundColor: global_color,
-                  label: Text('Upload Selected'), onPressed: upload_selected),
-
-
-
+                  backgroundColor: globalColor,
+                  label: const Text('Upload Selected'),
+                  onPressed: upload_selected),
           ],
         ),
       ),

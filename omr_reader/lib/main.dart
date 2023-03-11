@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:gallery_saver/gallery_saver.dart';
 import 'package:image_cropper/image_cropper.dart';
-import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:omr_reader/Grpahing_Module.dart';
 import 'Ans_Key_Screen.dart';
 import 'Multiple_Image_Selector.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
+import 'package:firebase_core/firebase_core.dart';
 
 // For dark mode
-bool dark_bool = true;
-var global_color;
+bool darkBool = true;
+var globalColor;
 
 //the main function
 void main() => runApp(const MyApp());
@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
       home: HomePage(),
     );
@@ -32,7 +32,6 @@ class MyApp extends StatelessWidget {
 //Defining the HomePage
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
-
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -46,60 +45,62 @@ class _HomePageState extends State<HomePage> {
   Future getImage(ImageSource source) async {
     //accessing the image
     // accessing imageQuality 1
-    XFile? _image = await ImagePicker.pickImage(source: source, imageQuality: 98);
+    XFile? _image =
+        await ImagePicker().pickImage(source: source, imageQuality: 98);
     //checking the null image
-    if ( _image != null) {
+    if (_image != null) {
       //Cropping image Window
-      CroppedFile? cropped = await ImageCropper.cropImage(
-          sourcePath: _image.path,
-          maxHeight: 1080,
-          maxWidth:  1920,
-          compressFormat: ImageCompressFormat.png,
-          androidUiSettings: AndroidUiSettings(
+      CroppedFile? cropped = await ImageCropper().cropImage(
+        sourcePath: _image.path,
+        maxHeight: 1080,
+        maxWidth: 1920,
+        compressFormat: ImageCompressFormat.png,
+        uiSettings: [
+          AndroidUiSettings(
             toolbarColor: Colors.white,
             toolbarTitle: 'Cropping',
             statusBarColor: Colors.white70,
             toolbarWidgetColor: Colors.lightBlueAccent,
-          ));
+          )
+        ],
+      );
 
-      await GallerySaver.saveImage(cropped?.path);
+      await GallerySaver.saveImage(cropped?.path as String);
       // Showing User Toast Message
       Fluttertoast.showToast(msg: "Photo Saved");
-
     }
   }
+
   @override
-
   Widget build(BuildContext context) {
-
     // Switch Theme Function and colors Selection
-    void switch_theme(){
-      if(dark_bool == true)
+    void switch_theme() {
+      if (darkBool == true) {
         setState(() {
-          dark_bool = false;
-          global_color = Colors.black;
+          darkBool = false;
+          globalColor = Colors.black;
         });
-      else
+      } else {
         setState(() {
-          dark_bool = true;
-          global_color = Colors.lightBlueAccent;
+          darkBool = true;
+          globalColor = Colors.lightBlueAccent;
         });
-      print("Theme Changed to $dark_bool");
+      }
+      print("Theme Changed to $darkBool");
     }
 
-
-
-    future: Firebase.initializeApp();
+    future:
+    Firebase.initializeApp();
     return Scaffold(
       //Making a AppBar
       appBar: AppBar(
-        backgroundColor: global_color,
-        title: Text(''),
+        backgroundColor: globalColor,
+        title: const Text(''),
         leading: GestureDetector(
           onTap: switch_theme,
-          child: Icon( (dark_bool == true ) ? Icons.wb_sunny : Icons.wb_sunny_outlined),
+          child: Icon(
+              (darkBool == true) ? Icons.wb_sunny : Icons.wb_sunny_outlined),
         ),
-
       ),
       //Background Color
       backgroundColor: Colors.white,
@@ -115,7 +116,7 @@ class _HomePageState extends State<HomePage> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               //For Divider
-              Divider(),
+              const Divider(),
               //For Images Upload
               GestureDetector(
                 onTap: () {
@@ -136,7 +137,7 @@ class _HomePageState extends State<HomePage> {
                   //Inserting the logo
                   decoration: BoxDecoration(
                     //Shaping thr Box
-                    borderRadius: BorderRadius.only(
+                    borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(10),
                         topRight: Radius.circular(10),
                         bottomLeft: Radius.circular(10),
@@ -147,10 +148,11 @@ class _HomePageState extends State<HomePage> {
                         color: Colors.grey.withOpacity(0.3),
                         spreadRadius: 3,
                         blurRadius: 2,
-                        offset: Offset(0, 3), // changes position of shadow
+                        offset:
+                            const Offset(0, 3), // changes position of shadow
                       )
                     ],
-                    image: DecorationImage(
+                    image: const DecorationImage(
                       image: AssetImage('images/image_upload.png'),
                     ),
                   ),
@@ -159,7 +161,7 @@ class _HomePageState extends State<HomePage> {
                     padding: const EdgeInsets.only(
                         left: 55, top: 0, right: 0, bottom: 0),
                     child: Row(
-                      children: <Widget>[
+                      children: const <Widget>[
                         Text(
                           'Upload',
                           style: TextStyle(fontSize: 20),
@@ -171,14 +173,13 @@ class _HomePageState extends State<HomePage> {
               ),
 
               //For Divider
-              Divider(),
+              const Divider(),
               //Container#2
               //making a clickable button
               GestureDetector(
                 onTap: () {
                   //Accessing Image from Camera
                   getImage(ImageSource.camera);
-
                 },
                 child: Container(
                   //Area of the Box
@@ -189,7 +190,7 @@ class _HomePageState extends State<HomePage> {
 
                   //Image for Logo
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
+                    borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(10),
                         topRight: Radius.circular(10),
                         bottomLeft: Radius.circular(10),
@@ -200,18 +201,19 @@ class _HomePageState extends State<HomePage> {
                         color: Colors.grey.withOpacity(0.3),
                         spreadRadius: 3,
                         blurRadius: 2,
-                        offset: Offset(0, 3), // changes position of shadow
+                        offset:
+                            const Offset(0, 3), // changes position of shadow
                       )
                     ],
 
-                    image:
-                    DecorationImage(image: AssetImage('images/camera.png')),
+                    image: const DecorationImage(
+                        image: AssetImage('images/camera.png')),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.only(
                         left: 55, top: 0, right: 0, bottom: 0),
                     child: Row(
-                      children: <Widget>[
+                      children: const <Widget>[
                         Text(
                           'Scanner',
                           style: TextStyle(fontSize: 20),
@@ -224,7 +226,7 @@ class _HomePageState extends State<HomePage> {
               ),
 
               //For Divider
-              Divider(),
+              const Divider(),
               //Container#3
               //navigating to Answer Key Screen
               GestureDetector(
@@ -247,7 +249,7 @@ class _HomePageState extends State<HomePage> {
 
                   //Image for Logo
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
+                    borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(10),
                         topRight: Radius.circular(10),
                         bottomLeft: Radius.circular(10),
@@ -258,18 +260,19 @@ class _HomePageState extends State<HomePage> {
                         color: Colors.grey.withOpacity(0.3),
                         spreadRadius: 3,
                         blurRadius: 2,
-                        offset: Offset(0, 3), // changes position of shadow
+                        offset:
+                            const Offset(0, 3), // changes position of shadow
                       )
                     ],
 
-                    image: DecorationImage(
+                    image: const DecorationImage(
                         image: AssetImage('images/answer_key.png')),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.only(
                         left: 45, top: 0, right: 0, bottom: 0),
                     child: Row(
-                      children: <Widget>[
+                      children: const <Widget>[
                         Text(
                           'Answer Key',
                           style: TextStyle(fontSize: 19),
@@ -281,10 +284,9 @@ class _HomePageState extends State<HomePage> {
               ),
 
               //Container#4
-              Divider(),
+              const Divider(),
               GestureDetector(
                 onTap: () {
-
                   //Rerouting to Ans_Key_Screen file
                   Navigator.push(
                     context,
@@ -303,7 +305,7 @@ class _HomePageState extends State<HomePage> {
 
                   //Image for Logo
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
+                    borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(10),
                         topRight: Radius.circular(10),
                         bottomLeft: Radius.circular(10),
@@ -314,18 +316,19 @@ class _HomePageState extends State<HomePage> {
                         color: Colors.grey.withOpacity(0.3),
                         spreadRadius: 3,
                         blurRadius: 2,
-                        offset: Offset(0, 3), // changes position of shadow
+                        offset:
+                            const Offset(0, 3), // changes position of shadow
                       )
                     ],
 
-                    image: DecorationImage(
+                    image: const DecorationImage(
                         image: AssetImage('images/Analytics.png')),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.only(
                         left: 55, top: 0, right: 0, bottom: 0),
                     child: Row(
-                      children: <Widget>[
+                      children: const <Widget>[
                         Text(
                           'Analytics',
                           style: TextStyle(fontSize: 20),
@@ -340,7 +343,7 @@ class _HomePageState extends State<HomePage> {
         },
         // For spacing between widgets
         separatorBuilder: (BuildContext context, int index) =>
-        const Divider(height: 15, thickness: 5, indent: 15, endIndent: 15),
+            const Divider(height: 15, thickness: 5, indent: 15, endIndent: 15),
       ),
     );
   }

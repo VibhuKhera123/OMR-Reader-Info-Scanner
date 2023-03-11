@@ -73,7 +73,7 @@ Future<void> ans_get() async {
 
   // Post Request
   try {
-    final response_big = await http.post(url_anaytics);
+    final response_big = await http.post(url_anaytics as Uri);
 
     print("Response Code from Server ${response_big.statusCode}");
     //print("Response data ${response.body}");
